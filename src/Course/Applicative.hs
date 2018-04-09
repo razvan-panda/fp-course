@@ -47,14 +47,12 @@ instance Applicative ExactlyOne where
   pure ::
     a
     -> ExactlyOne a
-  pure =
-    error "todo: Course.Applicative pure#instance ExactlyOne"
-  (<*>) :: 
+  pure = ExactlyOne
+  (<*>) ::
     ExactlyOne (a -> b)
     -> ExactlyOne a
     -> ExactlyOne b
-  (<*>) =
-    error "todo: Course.Applicative (<*>)#instance ExactlyOne"
+  (<*>) (ExactlyOne f) (ExactlyOne a) = ExactlyOne $ f a
 
 -- | Insert into a List.
 --
@@ -66,14 +64,15 @@ instance Applicative List where
   pure ::
     a
     -> List a
-  pure =
-    error "todo: Course.Applicative pure#instance List"
+  pure a = a :. Nil
   (<*>) ::
     List (a -> b)
     -> List a
     -> List b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance List"
+  (<*>) Nil Nil = Nil
+  (<*>) Nil (_ :. _) = Nil
+  (<*>) (_ :. _) Nil = Nil
+  (<*>) (f :. fs) bs = (f <$> bs) ++ (fs <*> bs)
 
 -- | Insert into an Optional.
 --
@@ -91,14 +90,15 @@ instance Applicative Optional where
   pure ::
     a
     -> Optional a
-  pure =
-    error "todo: Course.Applicative pure#instance Optional"
+  pure = Full
   (<*>) ::
     Optional (a -> b)
     -> Optional a
     -> Optional b
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance Optional"
+  (<*>) Empty Empty = Empty
+  (<*>) Empty (Full _) = Empty
+  (<*>) (Full _) Empty = Empty
+  (<*>) (Full a) (Full b) = Full $ a b
 
 -- | Insert into a constant function.
 --
@@ -121,15 +121,11 @@ instance Applicative Optional where
 instance Applicative ((->) t) where
   pure ::
     a
-    -> ((->) t a)
-  pure =
-    error "todo: Course.Applicative pure#((->) t)"
+    -> (->) t a
+  pure = const
   (<*>) ::
-    ((->) t (a -> b))
-    -> ((->) t a)
-    -> ((->) t b)
-  (<*>) =
-    error "todo: Course.Apply (<*>)#instance ((->) t)"
+    (->) t (a -> b)-> (->) t a -> (->) t b
+  (<*>) f g = \t -> f t (g t)
 
 
 -- | Apply a binary function in the environment.
