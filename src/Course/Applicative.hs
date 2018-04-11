@@ -317,6 +317,10 @@ sequence ::
   -> f (List a)
 sequence = foldRight (\a acc -> (:.) <$> a <*> acc) (pure Nil)
 
+sequence1 ::
+  Applicative f =>
+  List (f a)
+  -> f (List a)
 sequence1 Nil = pure Nil
 sequence1 (fa :. fas) = (:.) <$> fa <*> (sequence fas)
 
@@ -341,8 +345,7 @@ replicateA ::
   Int
   -> f a
   -> f (List a)
-replicateA =
-  error "todo: Course.Applicative#replicateA"
+replicateA n fa = sequence (replicate n fa)
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -369,8 +372,10 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering =
-  error "todo: Course.Applicative#filtering"
+filtering f =
+  foldRight (\a acc -> lift2 (f' a) (f a) acc) (pure Nil)
+    where
+      f' a b la = if b then a :. la else la
 
 -----------------------
 -- SUPPORT LIBRARIES --
