@@ -36,8 +36,8 @@ instance Monad ExactlyOne where
     (a -> ExactlyOne b)
     -> ExactlyOne a
     -> ExactlyOne b
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance ExactlyOne"
+  (=<<) f (ExactlyOne b) =
+    f b
 
 -- | Binds a function on a List.
 --
@@ -48,8 +48,13 @@ instance Monad List where
     (a -> List b)
     -> List a
     -> List b
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance List"
+  (=<<) = flatMap
+
+  -- (=<<) f = foldRight (\a acc -> f a ++ acc) Nil
+
+  -- (=<<) _ Nil = Nil
+  -- (=<<) f (a :. as) = f a ++ ((=<<) f as)
+
 
 -- | Binds a function on an Optional.
 --
@@ -60,8 +65,8 @@ instance Monad Optional where
     (a -> Optional b)
     -> Optional a
     -> Optional b
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance Optional"
+  (=<<) _ Empty = Empty
+  (=<<) f (Full a) = f a
 
 -- | Binds a function on the reader ((->) t).
 --
