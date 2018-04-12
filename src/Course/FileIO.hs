@@ -1,15 +1,15 @@
-{-# LANGUAGE NoImplicitPrelude #-}
+{-# LANGUAGE NoImplicitPrelude   #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE RebindableSyntax    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RebindableSyntax #-}
 
 module Course.FileIO where
 
-import Course.Core
-import Course.Applicative
-import Course.Monad
-import Course.Functor
-import Course.List
+import           Course.Applicative
+import           Course.Core
+import           Course.Functor
+import           Course.List
+import           Course.Monad
 
 {-
 
@@ -39,7 +39,7 @@ Problem --
 
 Consideration --
   Try to avoid repetition. Factor out any common expressions.
-  
+
 Example --
 Given file files.txt, containing:
   a.txt
@@ -61,7 +61,7 @@ To test this module, load ghci in the root of the project directory, and do
 Example output:
 
 $ ghci
-GHCi, version ... 
+GHCi, version ...
 Loading package...
 Loading ...
 [ 1 of 28] Compiling (etc...
@@ -85,46 +85,55 @@ printFile ::
   FilePath
   -> Chars
   -> IO ()
-printFile =
-  error "todo: Course.FileIO#printFile"
+printFile fp content = do
+  putStrLn $ "============ " ++ fp
+  putStrLn content
 
 -- Given a list of (file name and file contents), print each.
 -- Use @printFile@.
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
-printFiles =
-  error "todo: Course.FileIO#printFiles"
+printFiles lfc =
+  void (sequence((\a -> uncurry printFile a) <$> lfc))
 
 -- Given a file name, return (file name and file contents).
 -- Use @readFile@.
 getFile ::
   FilePath
   -> IO (FilePath, Chars)
-getFile =
-  error "todo: Course.FileIO#getFile"
+getFile fp = do
+  content <- readFile fp
+  return (fp, content)
 
 -- Given a list of file names, return list of (file name and file contents).
 -- Use @getFile@.
 getFiles ::
   List FilePath
   -> IO (List (FilePath, Chars))
-getFiles =
-  error "todo: Course.FileIO#getFiles"
+getFiles fps = sequence (getFile <$> fps)
+
 
 -- Given a file name, read it and for each line in that file, read and print contents of each.
 -- Use @getFiles@ and @printFiles@.
 run ::
   FilePath
   -> IO ()
-run =
-  error "todo: Course.FileIO#run"
+run fp = do
+  (_, content) <- getFile fp
+  let ls = lines content
+  files <- getFiles (ls)
+  printFiles files
+
 
 -- /Tip:/ use @getArgs@ and @run@
 main ::
   IO ()
-main =
-  error "todo: Course.FileIO#main"
+main = do
+  args <- getArgs
+  case args of
+    a :. _ -> run a
+    Nil    -> putStrLn "You need to pass file name as argument"
 
 ----
 

@@ -125,7 +125,7 @@ instance Applicative ((->) t) where
   pure = const
   (<*>) ::
     (->) t (a -> b)-> (->) t a -> (->) t b
-  (<*>) f g = \t -> f t (g t)
+  (<*>) f g t = f t (g t)
 
 
 -- | Apply a binary function in the environment.
